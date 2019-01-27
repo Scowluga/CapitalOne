@@ -6,24 +6,53 @@ import java.util.Scanner;
 
 public class Main {
 
-
-    String s = " asdf ' ' asdf ";
-    String b = ' asdf ';
-
-
-
-
-    // just check NOT cTODO or TODOc or cTODOc
-    // if there's a single one, return 1
-    // TODOs TODOe aTODO TODO*&^%#@!)(P
+    // Counting if the to-do statement exists in a specific string
+    // Uses regex to check each possible case
     private static int countTODOs(String line) {
-        // huh what to do here
-        return line.replaceAll("\\W*[tT][oO][dD][oO]\\W*", "").equals(line) ? 0 : 1;
+        if (line.matches("^[tT][oO][dD][oO]\\W")
+                || line.matches("\\W[tT][oO][dD][oO]$")
+                || line.matches("^[tT][oO][dD][oO]$")
+                || line.matches(".*\\W[tT][oO][dD][oO]\\W.*")) {
+                return 1;
+        }
+        return 0;
     }
 
-    // Dealing with // /* */ languages
+    // Clears strings from a line until either a comment, or new line appears
+    private static String cleanLine(String line) {
+        int singleStart = line.indexOf("//");
+        int multiStart = line.indexOf("/*");
+        int stringStart = line.indexOf("\"");
+
+        if (singleStart == -1) singleStart = Integer.MAX_VALUE;
+        if (multiStart == -1) multiStart = Integer.MAX_VALUE;
+        if (stringStart == -1) stringStart = Integer.MAX_VALUE;
+
+        // A string happens before the next comment
+        while (stringStart != Integer.MAX_VALUE
+                && stringStart < Math.min(singleStart, multiStart)
+                ) {
+
+            // Remove that string with regex
+            line = line.replaceFirst("[\"].*?[\"]", "");
+
+
+            singleStart = line.indexOf("//");
+            multiStart = line.indexOf("/*");
+            stringStart = line.indexOf("\"");
+
+            if (singleStart == -1) singleStart = Integer.MAX_VALUE;
+            if (multiStart == -1) multiStart = Integer.MAX_VALUE;
+            if (stringStart == -1) stringStart = Integer.MAX_VALUE;
+        }
+
+        return line;
+    }
+
+    // Processes a specific file name
     private static void processFile(String fileName) {
 
+        // Output variables
         int nTotalLines = 0; // # non-empty lines
         int nCommentLines = 0; // # lines with any type of comment
         int nSingleComments = 0; // number of single comments
@@ -32,31 +61,7 @@ public class Main {
         int nTODOs = 0; // number of TODO
         boolean isMultiline = false; // if a multi-line comment is going on
 
-
-
-        /*TODO */ /*(TODO:&
-        TODO**/ /*TODOA */ //
-
-        /* TODO: 0 */ /*TODO: 1 */ // wtf this counts as 2
-        //TODO
-        /*
-        **** ** * /// $ % TODO#%( TODO2 TODOa
-        * *TODO
-        * @TODO
-        * >TODO acts like a //. Anything after is automatically a todo unless the multi comment ends
-         */
-
-        // ^+.*todo
-        // so you can have anything non-character before or after
-        // and todo can be upper or lower case
-        // toDO or any combination
-
-        // \W[tT][oO][dD][oO]\W
-
-        // Java Regex for anything that's not a character
-        // YOu also have to check for when the indexOfs are not in a quote
-        // omg or multiline quote nope we're ignoring that case
-
+        // File IO
         File file = new File("test/" + fileName);
         try {
             Scanner sc = new Scanner(file);
@@ -73,6 +78,10 @@ public class Main {
                 }
 
                 if (!isMultiline) {
+                    // clean line of strings
+                    line = cleanLine(line);
+
+                    // determine which type of comment starts first
                     int singleStart = line.indexOf("//");
                     int multiStart = line.indexOf("/*");
 
@@ -96,6 +105,7 @@ public class Main {
                     nCommentLines++;
                     nMultiCommentLines++;
 
+                    // Loop until no multi-line comments end on the current line
                     while (line.contains("*/")) {
 
                         int multiEnd = line.indexOf("*/");
@@ -103,6 +113,10 @@ public class Main {
                         line = line.substring(multiEnd + 2);
                         isMultiline = false;
 
+                        // clean the line
+                        line = cleanLine(line);
+
+                        // check for what happens next
                         int singleStart = line.indexOf("//");
                         int multiStart = line.indexOf("/*");
 
@@ -127,6 +141,7 @@ public class Main {
                 }
             }
 
+            // Output
             System.out.println("Total # of lines: " + nTotalLines);
             System.out.println("Total # of comment lines: " + nCommentLines);
             System.out.println("Total # of single line comments: " + nSingleComments);
@@ -142,7 +157,6 @@ public class Main {
 
     // Main method
     // Continuously reads in file name as input
-    // Calls specific functions to process respective extensions
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         while (true) {
@@ -163,13 +177,13 @@ public class Main {
             if (fileName.split("\\.").length != 2)
                 continue;
 
-            // Calls respective function
             String extension = fileName.substring(fileName.indexOf("."));
-
+            if (!(extension.equals(".java") || extension.equals(".ts"))) {
+                System.out.println("File extension not supported.");
+                continue;
+            }
 
             processFile(fileName);
-
-
         }
     }
 }
