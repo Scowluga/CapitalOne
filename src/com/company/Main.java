@@ -162,21 +162,29 @@ public class Main {
         while (true) {
 
             // Input with Scanner for simplicity
+            System.out.println("--------------------------------");
             System.out.println("Enter a file name or 'q' to quit");
             System.out.print("> ");
 
             String fileName = scanner.nextLine().trim();
 
             // Processing file name
-            if (fileName.equals("q"))
+            if (fileName.equals("q")) {
+                System.out.println("Goodbye.");
                 return;
+            }
 
-            if (fileName.substring(0, 1).equals("."))
+            if (fileName.substring(0, 1).equals(".")) {
+                System.out.println("File type ignored.");
                 continue;
+            }
 
-            if (fileName.split("\\.").length != 2)
+            if (fileName.split("\\.").length != 2) {
+                System.out.println("Enter a valid file name.");
                 continue;
+            }
 
+            // Check for a supported extension
             String extension = fileName.substring(fileName.indexOf("."));
             if (!(extension.equals(".java") || extension.equals(".ts"))) {
                 System.out.println("File extension not supported.");

@@ -1,5 +1,5 @@
 /*
- * Stress test
+ * Stress test for edge cases
  * Total # of lines: 12
  * Total # of comment lines: 11
  * Total # of single line comments: 2
