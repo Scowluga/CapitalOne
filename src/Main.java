@@ -72,7 +72,7 @@ public class Main {
                 stringStart != Integer.MAX_VALUE
                         && stringStart < Math.min(singleStart, multiStart))
                 || (charStart != Integer.MAX_VALUE
-                        && charStart < Math.min(singleStart, multiStart))) {
+                && charStart < Math.min(singleStart, multiStart))) {
 
             // Remove that string with regex
             if (stringStart < charStart)
@@ -117,7 +117,7 @@ public class Main {
                 nTotalLines++;
 
                 if (line.isEmpty()) {
-                    if (isMultiline) {
+                    if (isMultiline) { 
                         nCommentLines++;
                         nMultiCommentLines++;
                     }
