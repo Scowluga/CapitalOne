@@ -1,3 +1,5 @@
+import javafx.util.Pair;
+
 import java.io.FileNotFoundException;
 
 public class PythonStyleCounter extends AbstractCounter {
@@ -7,134 +9,94 @@ public class PythonStyleCounter extends AbstractCounter {
         super(fileName);
     }
 
+    // if the last line was a multi-line comment
+    protected int multiLineCounter = 0;
+
     /*
-    """
-    wait until """
 
+    0: If found, start
+    1: If still, decrease damage from 0
 
-    '''
-    wait until '''
-
-    Clear strings '[text]', "[text]"
-
+    If not found, stop
 
 
      */
 
 
-    // Clears strings from a line until either a comment, or new line appears
-    static String cleanLine(String line) {
-        int singleStart = line.indexOf("//");
-        int multiStart = line.indexOf("/*");
-        int stringStart = line.indexOf("\"");
-        int charStart = line.indexOf("\'");
-
-        if (singleStart == -1) singleStart = Integer.MAX_VALUE;
-        if (multiStart == -1) multiStart = Integer.MAX_VALUE;
-        if (stringStart == -1) stringStart = Integer.MAX_VALUE;
-        if (charStart == -1) charStart = Integer.MAX_VALUE;
-
-        // A string happens before the next comment
-        while ((
-                stringStart != Integer.MAX_VALUE
-                        && stringStart < Math.min(singleStart, multiStart))
-                || (charStart != Integer.MAX_VALUE
-                && charStart < Math.min(singleStart, multiStart))) {
-
-            // Remove that string with regex
-            if (stringStart < charStart)
-                line = line.replaceFirst("[\"].*?[\"]", "");
-            else
-                line = line.replaceFirst("[\'].*?[\']", "");
-
-
-            singleStart = line.indexOf("//");
-            multiStart = line.indexOf("/*");
-            stringStart = line.indexOf("\"");
-            charStart = line.indexOf("\'");
-
-            if (singleStart == -1) singleStart = Integer.MAX_VALUE;
-            if (multiStart == -1) multiStart = Integer.MAX_VALUE;
-            if (stringStart == -1) stringStart = Integer.MAX_VALUE;
-            if (charStart == -1) charStart = Integer.MAX_VALUE;
-        }
-
-        return line;
-    }
-
-    boolean isMultiline = false; // if a multi-line comment is going on
+    protected boolean isMultiLine = false;
+    protected String multiLineEnd = "";
 
     @Override
     protected void nextLine(String line) {
         nTotalLines++;
 
         if (line.isEmpty()) {
-            if (isMultiline) {
-                nCommentLines++;
-                nMultiCommentLines++;
-            }
+            multiLineCounter = 0;
             return;
         }
 
-        if (!isMultiline) {
-            // clean line of strings
-            line = cleanLine(line);
-
-            // determine which type of comment starts first
-            int singleStart = line.indexOf("//");
-            int multiStart = line.indexOf("/*");
-
-            if (singleStart == -1 && multiStart == -1) {
-                return;
+        // Check if line starts with comment
+        if (line.trim().substring(0, 1).equals("#")) {
+            nTODOs += hasTODO(line) ? 1 : 0;
+            switch(multiLineCounter) {
+                case 0:
+                    nCommentLines++;
+                    nSingleComments++;
+                    multiLineCounter = 1;
+                    return;
+                case 1:
+                    nCommentLines++;
+                    nSingleComments--;
+                    nMultiComments++;
+                    nMultiCommentLines += 2;
+                    multiLineCounter = 2;
+                    return;
+                default:
+                    nCommentLines++;
+                    nMultiCommentLines++;
+                    return;
             }
-
-            if (multiStart == -1) {
-                nCommentLines++;
-                nSingleComments++;
-                nTODOs += hasTODO(line.substring(singleStart)) ? 1 : 0;
-
-            } else {
-                isMultiline = true;
-                nMultiComments++;
-                line = line.substring(multiStart + 2);
-            }
+        } else {
+            multiLineCounter = 0;
         }
 
-        if (isMultiline) {
-            nCommentLines++;
-            nMultiCommentLines++;
-
-            // Loop until no multi-line comments end on the current line
-            while (line.contains("*/")) {
-
-                int multiEnd = line.indexOf("*/");
-                nTODOs += hasTODO(line.substring(0, multiEnd)) ? 1 : 0;
-                line = line.substring(multiEnd + 2);
-                isMultiline = false;
-
-                // clean the line
-                line = cleanLine(line);
-
-                // check for what happens next
-                int singleStart = line.indexOf("//");
-                int multiStart = line.indexOf("/*");
-
-                if (singleStart == -1 && multiStart == -1) {
-                    return;
-                }
-
-                if (multiStart == -1) {
-                    nSingleComments++;
-                    nTODOs += hasTODO(line.substring(singleStart)) ? 1 : 0;
-                    return;
-
+        int timeout = 0;
+        while (timeout++ < 1000) {
+            if (isMultiLine) {
+                if (line.contains(multiLineEnd)) {
+                    line = line.substring(line.indexOf(multiLineEnd));
+                    isMultiLine = false;
                 } else {
-                    isMultiline = true;
-                    nMultiComments++;
-                    line = line.substring(multiStart + 2);
+                    break;
+                }
+            } else {
+                Pair<Integer, Integer> next = nextOccur(line, "#", "\'\'\'", "\"\"\"", "\'", "\"");
+                switch(next.getKey()) {
+                    case 0: // #
+                        nCommentLines++;
+                        nSingleComments++;
+                        nTODOs += hasTODO(line.substring(next.getValue())) ? 1 : 0;
+                        return;
+                    case 1: // '''
+                        isMultiLine = true;
+                        multiLineEnd = "\'\'\'";
+                        line = line.substring(next.getValue());
+                        break;
+                    case 2: // """
+                        isMultiLine = true;
+                        multiLineEnd = "\"\"\"";
+                        line = line.substring(next.getValue());
+                        break;
+                    case 3: // '
+                        line = line.replaceFirst("[\'].*?[\']", "");
+                        break;
+                    case 4: // "
+                        line = line.replaceFirst("[\"].*?[\"]", "");
+                        break;
+                    default:
+                        return;
                 }
             }
-            nTODOs += hasTODO(line) ? 1 : 0;
         }
     }
 }
