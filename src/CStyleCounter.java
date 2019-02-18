@@ -13,7 +13,22 @@ public class CStyleCounter extends AbstractCounter {
     // Used in nextLine implementation
     protected boolean isMultiline = false;
 
-
+    protected String process(String line, boolean isNewLine) {
+        Pair<Integer, Integer> next = nextOccur(line, "//", "/*");
+        switch(next.getKey()) {
+            case 0:  // next: //
+                if (isNewLine) nCommentLines++;
+                nSingleComments++;
+                nTODOs += hasTODO(line.substring(next.getValue())) ? 1 : 0;
+                return line;
+            case 1:  // next: /*
+                isMultiline = true;
+                nMultiComments++;
+                return line.substring(next.getValue() + 2);
+            default: // No comment
+                return line;
+        }
+    }
 
     @Override
     protected void nextLine(String line) {
@@ -30,22 +45,7 @@ public class CStyleCounter extends AbstractCounter {
         if (!isMultiline) {
             // clean line of strings
             line = cleanLine(line);
-
-            Pair<Integer, Integer> next = nextOccur(line, "//", "/*");
-            switch(next.getKey()) {
-                case -1: // Neither
-                    return;
-                case 0:  // next: //
-                    nCommentLines++;
-                    nSingleComments++;
-                    nTODOs += hasTODO(line.substring(next.getValue())) ? 1 : 0;
-                    break;
-                case 1:  // next: /*
-                    isMultiline = true;
-                    nMultiComments++;
-                    line = line.substring(next.getValue() + 2);
-                    break;
-            }
+            line = process(line, true);
         }
 
         if (isMultiline) {
@@ -53,32 +53,18 @@ public class CStyleCounter extends AbstractCounter {
             nMultiCommentLines++;
 
             // Loop until no multi-line comments end on the current line
-            while (line.contains("*/")) {
+            while (isMultiline && line.contains("*/")) {
 
                 int multiEnd = line.indexOf("*/");
                 nTODOs += hasTODO(line.substring(0, multiEnd)) ? 1 : 0;
                 line = line.substring(multiEnd + 2);
                 isMultiline = false;
 
-                // clean the line
                 line = cleanLine(line);
-
-                Pair<Integer, Integer> next = nextOccur(line, "//", "/*");
-                switch(next.getKey()) {
-                    case -1: // Neither
-                        return;
-                    case 0:  // next: //
-                        nSingleComments++;
-                        nTODOs += hasTODO(line.substring(next.getValue())) ? 1 : 0;
-                        return;
-                    case 1:  // next: /*
-                        isMultiline = true;
-                        nMultiComments++;
-                        line = line.substring(next.getValue() + 2);
-                        break;
-                }
+                line = process(line, false);
             }
-            nTODOs += hasTODO(line) ? 1 : 0;
+            if (isMultiline)
+                nTODOs += hasTODO(line) ? 1 : 0;
         }
     }
 }
