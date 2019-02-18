@@ -8,6 +8,8 @@ import java.util.regex.Pattern;
 
 public abstract class AbstractCounter {
 
+    public static final int TIMEOUT_ITERATIONS = 1000;
+
     // Takes in a fileName and generates the corresponding AbstractCounter instance
     // Throws exceptions when the file name isn't supported, or file isn't found
     public static AbstractCounter build(String fileName) throws Exception {

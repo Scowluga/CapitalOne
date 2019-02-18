@@ -20,7 +20,7 @@ public class CStyleCounter extends AbstractCounter {
         Pair<Integer, Integer> next = nextOccur(line, "//", "/*", "\"", "\'");
 
         int timeout = 0; // defensive. In case there's a syntax error checked in.
-        while (next.getKey() >= 2 && timeout++ < 1000) {
+        while (next.getKey() >= 2 && timeout++ < TIMEOUT_ITERATIONS) {
             switch(next.getKey()) {
                 case 2:
                     line = line.replaceFirst("[\"].*?[\"]", "");

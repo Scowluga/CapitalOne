@@ -10,62 +10,49 @@ public class PythonStyleCounter extends AbstractCounter {
     }
 
     // if the last line was a multi-line comment
-    protected int multiLineCounter = 0;
+    protected int multiLineCommentCounter = 0;
 
-    /*
-
-    0: If found, start
-    1: If still, decrease damage from 0
-
-    If not found, stop
-
-
-     */
-
-
-    protected boolean isMultiLine = false;
-    protected String multiLineEnd = "";
+    protected boolean isMultiLineString = false;
+    protected String multiLineStringEnd = "";
 
     @Override
     protected void nextLine(String line) {
         nTotalLines++;
 
         if (line.isEmpty()) {
-            multiLineCounter = 0;
+            multiLineCommentCounter = 0;
             return;
         }
 
         // Check if line starts with comment
-        if (line.trim().substring(0, 1).equals("#")) {
+        if (!isMultiLineString && line.trim().substring(0, 1).equals("#")) {
             nTODOs += hasTODO(line) ? 1 : 0;
-            switch(multiLineCounter) {
+            nCommentLines++;
+            switch(multiLineCommentCounter) {
                 case 0:
-                    nCommentLines++;
                     nSingleComments++;
-                    multiLineCounter = 1;
+                    multiLineCommentCounter = 1;
                     return;
                 case 1:
-                    nCommentLines++;
                     nSingleComments--;
                     nMultiComments++;
                     nMultiCommentLines += 2;
-                    multiLineCounter = 2;
+                    multiLineCommentCounter = 2;
                     return;
                 default:
-                    nCommentLines++;
                     nMultiCommentLines++;
                     return;
             }
         } else {
-            multiLineCounter = 0;
+            multiLineCommentCounter = 0;
         }
 
         int timeout = 0;
-        while (timeout++ < 1000) {
-            if (isMultiLine) {
-                if (line.contains(multiLineEnd)) {
-                    line = line.substring(line.indexOf(multiLineEnd));
-                    isMultiLine = false;
+        while (timeout++ < TIMEOUT_ITERATIONS) {
+            if (isMultiLineString) {
+                if (line.contains(multiLineStringEnd)) {
+                    line = line.substring(line.indexOf(multiLineStringEnd) + 3);
+                    isMultiLineString = false;
                 } else {
                     break;
                 }
@@ -78,14 +65,14 @@ public class PythonStyleCounter extends AbstractCounter {
                         nTODOs += hasTODO(line.substring(next.getValue())) ? 1 : 0;
                         return;
                     case 1: // '''
-                        isMultiLine = true;
-                        multiLineEnd = "\'\'\'";
-                        line = line.substring(next.getValue());
+                        isMultiLineString = true;
+                        multiLineStringEnd = "\'\'\'";
+                        line = line.substring(next.getValue() + 3);
                         break;
                     case 2: // """
-                        isMultiLine = true;
-                        multiLineEnd = "\"\"\"";
-                        line = line.substring(next.getValue());
+                        isMultiLineString = true;
+                        multiLineStringEnd = "\"\"\"";
+                        line = line.substring(next.getValue() + 3);
                         break;
                     case 3: // '
                         line = line.replaceFirst("[\'].*?[\']", "");
