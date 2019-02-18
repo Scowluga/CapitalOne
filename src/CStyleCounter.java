@@ -1,3 +1,5 @@
+import javafx.util.Pair;
+
 import java.io.FileNotFoundException;
 
 public class CStyleCounter extends AbstractCounter {
@@ -29,32 +31,20 @@ public class CStyleCounter extends AbstractCounter {
             // clean line of strings
             line = cleanLine(line);
 
-
-            int next = nextOccur(line, "//", "/*");
-            switch(next) {
-                case -1:
+            Pair<Integer, Integer> next = nextOccur(line, "//", "/*");
+            switch(next.getKey()) {
+                case -1: // Neither
                     return;
-                case 0:
-                    
-            }
-
-            // determine which type of comment starts first
-            int singleStart = line.indexOf("//");
-            int multiStart = line.indexOf("/*");
-
-            if (singleStart == -1 && multiStart == -1) {
-                return;
-            }
-
-            if (multiStart == -1) {
-                nCommentLines++;
-                nSingleComments++;
-                nTODOs += hasTODO(line.substring(singleStart)) ? 1 : 0;
-
-            } else {
-                isMultiline = true;
-                nMultiComments++;
-                line = line.substring(multiStart + 2);
+                case 0:  // next: //
+                    nCommentLines++;
+                    nSingleComments++;
+                    nTODOs += hasTODO(line.substring(next.getValue())) ? 1 : 0;
+                    break;
+                case 1:  // next: /*
+                    isMultiline = true;
+                    nMultiComments++;
+                    line = line.substring(next.getValue() + 2);
+                    break;
             }
         }
 
@@ -73,23 +63,19 @@ public class CStyleCounter extends AbstractCounter {
                 // clean the line
                 line = cleanLine(line);
 
-                // check for what happens next
-                int singleStart = line.indexOf("//");
-                int multiStart = line.indexOf("/*");
-
-                if (singleStart == -1 && multiStart == -1) {
-                    return;
-                }
-
-                if (multiStart == -1) {
-                    nSingleComments++;
-                    nTODOs += hasTODO(line.substring(singleStart)) ? 1 : 0;
-                    return;
-
-                } else {
-                    isMultiline = true;
-                    nMultiComments++;
-                    line = line.substring(multiStart + 2);
+                Pair<Integer, Integer> next = nextOccur(line, "//", "/*");
+                switch(next.getKey()) {
+                    case -1: // Neither
+                        return;
+                    case 0:  // next: //
+                        nSingleComments++;
+                        nTODOs += hasTODO(line.substring(next.getValue())) ? 1 : 0;
+                        return;
+                    case 1:  // next: /*
+                        isMultiline = true;
+                        nMultiComments++;
+                        line = line.substring(next.getValue() + 2);
+                        break;
                 }
             }
             nTODOs += hasTODO(line) ? 1 : 0;

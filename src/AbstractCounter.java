@@ -1,8 +1,8 @@
 
+import javafx.util.Pair;
+
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
@@ -46,15 +46,21 @@ public abstract class AbstractCounter {
     }
 
     // Searches a line for which value occurs next
-    // Returns -1 when none occur
-    protected static int nextOccur(String line, String... values) {
-        int next = Integer.MAX_VALUE;
-        for (int i = 0; i < values.length; i++) {
-            int occur = line.indexOf(values[i]);
-            if (occur != -1)
-                next = Math.min(next, occur);
+    // Returns <Index of Value, Index in Line>
+    // Returns <-1, -1> when none are found
+    protected static Pair<Integer, Integer> nextOccur(String line, String... values) {
+
+        Pair<Integer, Integer> next = new Pair<>(-1, -1);
+
+        for (int valIndex = 0; valIndex < values.length; valIndex++) {
+            int lineIndex = line.indexOf(values[valIndex]);
+            if (lineIndex != -1) {
+                if (next.getKey() == -1 || lineIndex < next.getValue()) {
+                    next = new Pair<>(valIndex, lineIndex);
+                }
+            }
         }
-        return next == Integer.MAX_VALUE ? -1 : next;
+        return next;
     }
 
     // Clears single line strings from a line until either comment or new line appears
