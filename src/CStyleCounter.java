@@ -9,48 +9,9 @@ public class CStyleCounter extends AbstractCounter {
 
     // If a multi-line comment is going on
     // Used in nextLine implementation
-    boolean isMultiline = false;
-
-    // Clears strings from a line until either a comment, or new line appears
-    // Used in nextLine implementation
-    static String cleanLine(String line) {
-        int singleStart = line.indexOf("//");
-        int multiStart = line.indexOf("/*");
-        int stringStart = line.indexOf("\"");
-        int charStart = line.indexOf("\'");
-
-        if (singleStart == -1) singleStart = Integer.MAX_VALUE;
-        if (multiStart == -1) multiStart = Integer.MAX_VALUE;
-        if (stringStart == -1) stringStart = Integer.MAX_VALUE;
-        if (charStart == -1) charStart = Integer.MAX_VALUE;
-
-        // A string happens before the next comment
-        while ((
-                stringStart != Integer.MAX_VALUE
-                        && stringStart < Math.min(singleStart, multiStart))
-                || (charStart != Integer.MAX_VALUE
-                && charStart < Math.min(singleStart, multiStart))) {
-
-            // Remove that string with regex
-            if (stringStart < charStart)
-                line = line.replaceFirst("[\"].*?[\"]", "");
-            else
-                line = line.replaceFirst("[\'].*?[\']", "");
+    protected boolean isMultiline = false;
 
 
-            singleStart = line.indexOf("//");
-            multiStart = line.indexOf("/*");
-            stringStart = line.indexOf("\"");
-            charStart = line.indexOf("\'");
-
-            if (singleStart == -1) singleStart = Integer.MAX_VALUE;
-            if (multiStart == -1) multiStart = Integer.MAX_VALUE;
-            if (stringStart == -1) stringStart = Integer.MAX_VALUE;
-            if (charStart == -1) charStart = Integer.MAX_VALUE;
-        }
-
-        return line;
-    }
 
     @Override
     protected void nextLine(String line) {
@@ -67,6 +28,15 @@ public class CStyleCounter extends AbstractCounter {
         if (!isMultiline) {
             // clean line of strings
             line = cleanLine(line);
+
+
+            int next = nextOccur(line, "//", "/*");
+            switch(next) {
+                case -1:
+                    return;
+                case 0:
+                    
+            }
 
             // determine which type of comment starts first
             int singleStart = line.indexOf("//");

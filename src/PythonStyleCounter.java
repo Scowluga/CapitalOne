@@ -7,6 +7,21 @@ public class PythonStyleCounter extends AbstractCounter {
         super(fileName);
     }
 
+    /*
+    """
+    wait until """
+
+
+    '''
+    wait until '''
+
+    Clear strings '[text]', "[text]"
+
+
+
+     */
+
+
     // Clears strings from a line until either a comment, or new line appears
     static String cleanLine(String line) {
         int singleStart = line.indexOf("//");

@@ -1,6 +1,8 @@
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
@@ -18,11 +20,12 @@ public abstract class AbstractCounter {
 
         String extension = fileName.substring(fileName.indexOf("."));
         switch (extension) {
-            case ".java":
-            case ".ts":
-            case ".cpp":
+            case ".java": // Java
+            case ".ts":   // TypeScript
+            case ".cpp":  // C++
                 return new CStyleCounter(fileName);
-            case ".py":
+            case ".py":   // Python
+            case ".sh":   // Shell
                 return new PythonStyleCounter(fileName);
             default:
                 throw new Exception("File extension not supported.");
@@ -40,6 +43,59 @@ public abstract class AbstractCounter {
             );
         }
         return todoPattern.matcher(line).matches();
+    }
+
+    // Searches a line for which value occurs next
+    // Returns -1 when none occur
+    protected static int nextOccur(String line, String... values) {
+        int next = Integer.MAX_VALUE;
+        for (int i = 0; i < values.length; i++) {
+            int occur = line.indexOf(values[i]);
+            if (occur != -1)
+                next = Math.min(next, occur);
+        }
+        return next == Integer.MAX_VALUE ? -1 : next;
+    }
+
+    // Clears single line strings from a line until either comment or new line appears
+    // Used in nextLine implementation
+    protected String cleanLine(String line) {
+        int singleStart = line.indexOf("//");
+        int multiStart = line.indexOf("/*");
+        int stringStart = line.indexOf("\"");
+        int charStart = line.indexOf("\'");
+
+        if (singleStart == -1) singleStart = Integer.MAX_VALUE;
+        if (multiStart == -1) multiStart = Integer.MAX_VALUE;
+        if (stringStart == -1) stringStart = Integer.MAX_VALUE;
+        if (charStart == -1) charStart = Integer.MAX_VALUE;
+
+        // A string happens before the next comment
+        while ((
+                stringStart != Integer.MAX_VALUE
+                        && stringStart < Math.min(singleStart, multiStart))
+                || (charStart != Integer.MAX_VALUE
+                && charStart < Math.min(singleStart, multiStart))) {
+
+            // Remove that string with regex
+            if (stringStart < charStart)
+                line = line.replaceFirst("[\"].*?[\"]", "");
+            else
+                line = line.replaceFirst("[\'].*?[\']", "");
+
+
+            singleStart = line.indexOf("//");
+            multiStart = line.indexOf("/*");
+            stringStart = line.indexOf("\"");
+            charStart = line.indexOf("\'");
+
+            if (singleStart == -1) singleStart = Integer.MAX_VALUE;
+            if (multiStart == -1) multiStart = Integer.MAX_VALUE;
+            if (stringStart == -1) stringStart = Integer.MAX_VALUE;
+            if (charStart == -1) charStart = Integer.MAX_VALUE;
+        }
+
+        return line;
     }
 
     // Output variables
