@@ -23,44 +23,44 @@ public class PythonStyleCounter extends AbstractCounter {
 
 
     // Clears strings from a line until either a comment, or new line appears
-//    static String cleanLine(String line) {
-//        int singleStart = line.indexOf("//");
-//        int multiStart = line.indexOf("/*");
-//        int stringStart = line.indexOf("\"");
-//        int charStart = line.indexOf("\'");
-//
-//        if (singleStart == -1) singleStart = Integer.MAX_VALUE;
-//        if (multiStart == -1) multiStart = Integer.MAX_VALUE;
-//        if (stringStart == -1) stringStart = Integer.MAX_VALUE;
-//        if (charStart == -1) charStart = Integer.MAX_VALUE;
-//
-//        // A string happens before the next comment
-//        while ((
-//                stringStart != Integer.MAX_VALUE
-//                        && stringStart < Math.min(singleStart, multiStart))
-//                || (charStart != Integer.MAX_VALUE
-//                && charStart < Math.min(singleStart, multiStart))) {
-//
-//            // Remove that string with regex
-//            if (stringStart < charStart)
-//                line = line.replaceFirst("[\"].*?[\"]", "");
-//            else
-//                line = line.replaceFirst("[\'].*?[\']", "");
-//
-//
-//            singleStart = line.indexOf("//");
-//            multiStart = line.indexOf("/*");
-//            stringStart = line.indexOf("\"");
-//            charStart = line.indexOf("\'");
-//
-//            if (singleStart == -1) singleStart = Integer.MAX_VALUE;
-//            if (multiStart == -1) multiStart = Integer.MAX_VALUE;
-//            if (stringStart == -1) stringStart = Integer.MAX_VALUE;
-//            if (charStart == -1) charStart = Integer.MAX_VALUE;
-//        }
-//
-//        return line;
-//    }
+    static String cleanLine(String line) {
+        int singleStart = line.indexOf("//");
+        int multiStart = line.indexOf("/*");
+        int stringStart = line.indexOf("\"");
+        int charStart = line.indexOf("\'");
+
+        if (singleStart == -1) singleStart = Integer.MAX_VALUE;
+        if (multiStart == -1) multiStart = Integer.MAX_VALUE;
+        if (stringStart == -1) stringStart = Integer.MAX_VALUE;
+        if (charStart == -1) charStart = Integer.MAX_VALUE;
+
+        // A string happens before the next comment
+        while ((
+                stringStart != Integer.MAX_VALUE
+                        && stringStart < Math.min(singleStart, multiStart))
+                || (charStart != Integer.MAX_VALUE
+                && charStart < Math.min(singleStart, multiStart))) {
+
+            // Remove that string with regex
+            if (stringStart < charStart)
+                line = line.replaceFirst("[\"].*?[\"]", "");
+            else
+                line = line.replaceFirst("[\'].*?[\']", "");
+
+
+            singleStart = line.indexOf("//");
+            multiStart = line.indexOf("/*");
+            stringStart = line.indexOf("\"");
+            charStart = line.indexOf("\'");
+
+            if (singleStart == -1) singleStart = Integer.MAX_VALUE;
+            if (multiStart == -1) multiStart = Integer.MAX_VALUE;
+            if (stringStart == -1) stringStart = Integer.MAX_VALUE;
+            if (charStart == -1) charStart = Integer.MAX_VALUE;
+        }
+
+        return line;
+    }
 
     boolean isMultiline = false; // if a multi-line comment is going on
 
