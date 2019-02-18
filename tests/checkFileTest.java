@@ -21,6 +21,11 @@ public class checkFileTest {
     }
 
     @Test
+    public void valid() throws Exception {
+        assertEquals(Main.checkFile("asdf.java"), Main.MESSAGE_SUCCESS);
+    }
+
+    @Test
     public void unsupported() throws Exception {
         assertEquals(Main.checkFile("test.py"), Main.MESSAGE_UNSUPPORTED);
         assertEquals(Main.checkFile("test.exe"), Main.MESSAGE_UNSUPPORTED);

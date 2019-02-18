@@ -1,26 +1,25 @@
+import Counters.AbstractCounter;
+
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 
 public class Main {
 
     // The fileName is proper, proceed to processFile
-    public static final String MESSAGE_SUCCESS = "";
+    static final String MESSAGE_SUCCESS = "";
     // The input was "q". Quit.
-    public static final String MESSAGE_QUIT = "Goodbye.";
+    static final String MESSAGE_QUIT = "Goodbye.";
     // File begins with ".". To be ignored.
-    public static final String MESSAGE_IGNORED = "File type ignored.";
+    static final String MESSAGE_IGNORED = "File type ignored.";
     // Too many "."s in the fileName
-    public static final String MESSAGE_INVALID = "Enter a valid file name.";
+    static final String MESSAGE_INVALID = "Enter a valid file name.";
     // The extension is currently not supported
-    public static final String MESSAGE_UNSUPPORTED = "File extension not supported.";
+    static final String MESSAGE_UNSUPPORTED = "File extension not supported.";
 
     // Returns message if extension is incorrect
     // Otherwise returns empty string meaning start processing
-    public static String checkFile(String fileName) {
+    static String checkFile(String fileName) {
         if (fileName.equals("q"))
             return MESSAGE_QUIT;
 
@@ -29,6 +28,12 @@ public class Main {
 
         if (fileName.split("\\.").length != 2)
             return MESSAGE_INVALID;
+
+
+        // Change to dictionary
+        // <String, AbstractCounter>
+        // Create an object of this
+        // Moduralize into that
 
         Set<String> supportedExtensions = new HashSet<>(Arrays.asList(
                 ".java",
@@ -43,20 +48,8 @@ public class Main {
         return MESSAGE_SUCCESS;
     }
 
-    // Counting if the to-do statement exists in a specific string
-    // Uses regex to check each possible case
-    public static int countTODOs(String line) {
-        if (line.matches("^[tT][oO][dD][oO]\\W.*")
-                || line.matches(".*\\W[tT][oO][dD][oO]$")
-                || line.matches("^[tT][oO][dD][oO]$")
-                || line.matches(".*\\W[tT][oO][dD][oO]\\W.*")) {
-            return 1;
-        }
-        return 0;
-    }
-
     // Clears strings from a line until either a comment, or new line appears
-    public static String cleanLine(String line) {
+    static String cleanLine(String line) {
         int singleStart = line.indexOf("//");
         int multiStart = line.indexOf("/*");
         int stringStart = line.indexOf("\"");
@@ -96,16 +89,7 @@ public class Main {
     }
 
     // Processes a specific file name
-    public static void processFile(String fileName) {
-
-        // Output variables
-        int nTotalLines = 0; // # non-empty lines
-        int nCommentLines = 0; // # lines with any type of comment
-        int nSingleComments = 0; // number of single comments
-        int nMultiComments = 0; // number of multi comments
-        int nMultiCommentLines = 0; // number of lines multi comments cover
-        int nTODOs = 0; // number of TODO
-        boolean isMultiline = false; // if a multi-line comment is going on
+    static void processFile(String fileName) {
 
         // File IO
         File file = new File("input_tests/" + fileName);
@@ -186,13 +170,6 @@ public class Main {
                 }
             }
 
-            // Output
-            System.out.println("Total # of lines: " + nTotalLines);
-            System.out.println("Total # of comment lines: " + nCommentLines);
-            System.out.println("Total # of single line comments: " + nSingleComments);
-            System.out.println("Total # of comment lines within block comments: " + nMultiCommentLines);
-            System.out.println("Total # of block line comments: " + nMultiComments);
-            System.out.println("Total # of TODO's: " + nTODOs);
 
             sc.close();
         } catch (FileNotFoundException e) {
