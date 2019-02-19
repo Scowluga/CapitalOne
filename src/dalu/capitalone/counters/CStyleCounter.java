@@ -6,34 +6,41 @@ import javafx.util.Pair;
 import java.io.FileNotFoundException;
 
 /**
- * Completes the Capital One coding challenge
+ * Implementation of AbstractCounter
  * For all C style languages including:
- * Java, TypeScript, C++
+ * Java, TypeScript, C, C++...
  */
 public class CStyleCounter extends AbstractCounter {
 
-    // Public constructor
+    /**
+     * Public Constructor
+     *
+     * @param fileName
+     * @throws FileNotFoundException
+     */
     public CStyleCounter(String fileName) throws FileNotFoundException {
         super(fileName);
     }
 
     // If currently in a multi-line comment
-    protected boolean isMultiline = false;
+    private boolean isMultiline = false;
 
     /**
      * Clears all strings from a line until either a comment or new line appears
      *
-     * @param line Processed line
-     * @return Cleaned line
+     * @param line
+     * @return cleaned line
      */
-    protected String cleanLine(String line) {
+    private String cleanLine(String line) {
         // Checks for next occurrence
         Pair<Integer, Integer> next = nextOccur(line, "//", "/*", "\"", "\'");
 
         // Continuously replaces strings
-        int timeout = 0; // defensive timeout
-        while (next.getKey() >= 2 && timeout++ < TIMEOUT_ITERATIONS) {
+        int size = line.length();
+        while (next.getKey() >= 2) {
             switch (next.getKey()) {
+                // TODO: Improve regex for string replacement
+                // Consider cases: " \" " or " \\\" "
                 case 2:
                     line = line.replaceFirst("[\"].*?[\"]", "");
                     break;
@@ -41,6 +48,10 @@ public class CStyleCounter extends AbstractCounter {
                     line = line.replaceFirst("[\'].*?[\']", "");
                     break;
             }
+            if (line.length() == size) {
+                break;
+            }
+            size = line.length();
 
             next = nextOccur(line, "//", "/*", "\"", "\'");
         }
@@ -51,11 +62,11 @@ public class CStyleCounter extends AbstractCounter {
     /**
      * Updates variables according to specific line
      *
-     * @param line      Processed line
-     * @param isNewLine Whether this line is new, for updating of certain variables
-     * @return Processed line
+     * @param line
+     * @param isNewLine Whether this line is new
+     * @return processed line
      */
-    protected String processLine(String line, boolean isNewLine) {
+    private String processLine(String line, boolean isNewLine) {
         // Checks for next occurrence
         Pair<Integer, Integer> next = nextOccur(line, "//", "/*");
 

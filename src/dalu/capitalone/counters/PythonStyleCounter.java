@@ -6,25 +6,30 @@ import javafx.util.Pair;
 import java.io.FileNotFoundException;
 
 /**
- * Completes the Capital One coding challenge
+ * Implementation of AbstractCounter
  * For all Python style languages including:
- * Python, Shell Script
+ * Python, Shell Script... 
  */
 public class PythonStyleCounter extends AbstractCounter {
 
-    // Public constructor
+    /**
+     * Public Constructor
+     *
+     * @param fileName
+     * @throws FileNotFoundException
+     */
     public PythonStyleCounter(String fileName) throws FileNotFoundException {
         super(fileName);
     }
 
     // The number of multi-line comment lines right before the current line
-    protected int multiLineCommentCounter = 0;
+    private int multiLineCommentCounter = 0;
 
     // If currently in a multi-line string
-    protected boolean isMultiLineString = false;
+    private boolean isMultiLineString = false;
 
     // The corresponding multi-line string end
-    protected String multiLineStringEnd = "";
+    private String multiLineStringEnd = "";
 
     @Override
     protected void nextLine(String line) {
@@ -63,8 +68,8 @@ public class PythonStyleCounter extends AbstractCounter {
         }
 
         // Continuously remove strings until comment or end of line
-        int timeout = 0;
-        while (timeout++ < TIMEOUT_ITERATIONS) {
+        int size = line.length();
+        while (true) {
             if (isMultiLineString) {
                 // If in a multi-line string, just try to search for the end
                 if (line.contains(multiLineStringEnd)) {
@@ -103,6 +108,10 @@ public class PythonStyleCounter extends AbstractCounter {
                         return;
                 }
             }
+            if (line.length() == size) {
+                break;
+            }
+            size = line.length();
         }
     }
 }

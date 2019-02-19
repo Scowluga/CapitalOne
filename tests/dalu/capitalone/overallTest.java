@@ -1,3 +1,5 @@
+package dalu.capitalone;
+
 import dalu.capitalone.counters.CStyleCounter;
 import dalu.capitalone.counters.PythonStyleCounter;
 import org.junit.Test;

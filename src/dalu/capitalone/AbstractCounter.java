@@ -6,22 +6,49 @@ import javafx.util.Pair;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
 /**
- * Abstract class to complete the Capital One coding challenge
+ * Abstract class to count required values in a file
  */
 public abstract class AbstractCounter {
 
-    // Max number of iterations for any while-loop
-    protected static final int TIMEOUT_ITERATIONS = 1000;
+    /**
+     * Map for building AbstractCounter instances
+     *
+     * Key: File extension
+     * Value: Corresponding AbstractCounter implementation
+     */
+    private static final Map<String, Class<? extends AbstractCounter>> COUNTER_MAP;
+    static {
+        Map<String, Class<? extends AbstractCounter>> temp = new HashMap<>();
+
+        // Adding currently supported files
+        // TODO: Load from external source
+        temp.put(".java", CStyleCounter.class);
+        temp.put(".ts", CStyleCounter.class);
+        temp.put(".c", CStyleCounter.class);
+        temp.put(".cpp", CStyleCounter.class);
+        temp.put(".cc", CStyleCounter.class);
+
+        temp.put(".py", PythonStyleCounter.class);
+        temp.put(".sh", PythonStyleCounter.class);
+
+        // Using unmodifiableMap to ensure COUNTER_MAP remains completely unchanged
+        COUNTER_MAP = Collections.unmodifiableMap(temp);
+    }
 
     /**
      * Instantiates and returns an AbstractCounter to complete the challenge
+     * Uses COUNTER_MAP
      *
-     * @param fileName The file to be processed
-     * @return The Corresponding implementation of AbstractCounter
+     * @param fileName
+     * @return the Corresponding implementation
+     * @throws Exception
      */
     public static AbstractCounter build(String fileName) throws Exception {
         assert (fileName != null);
@@ -29,48 +56,46 @@ public abstract class AbstractCounter {
         // Checks validity of file name
         if (fileName.substring(0, 1).equals("."))  // Specified to be ignored
             throw new Exception("File ignored.");
-        if (fileName.split("\\.").length != 2)     // Too many '.' characters
+        if (fileName.split("\\.").length < 2)      // No '.' character
             throw new Exception("File name invalid.");
 
         // Returns corresponding implementation
-        String extension = fileName.substring(fileName.indexOf("."));
-        switch (extension) {
-            case ".java": // Java
-            case ".ts":   // TypeScript
-            case ".cpp":  // C++
-                return new CStyleCounter(fileName);
-            case ".py":   // Python
-            case ".sh":   // Shell
-                return new PythonStyleCounter(fileName);
-            default:
-                throw new Exception("File extension not supported.");
+        String extension = fileName.substring(fileName.lastIndexOf("."));
+        Class<? extends AbstractCounter> klass = COUNTER_MAP.get(extension);
+
+        if (klass == null) {
+            // File extension not found, thus not supported
+            throw new Exception("File extension not supported.");
         }
+
+        // Uses Reflection to call constructor
+        return klass.getConstructor(String.class).newInstance(fileName);
     }
 
-    // Static todo_regex pattern to prevent re-compilation
-    protected static Pattern todoPattern;
+    // Static regex pattern for finding TODOs
+    // Prevents continuous re-compilation
+    private static final Pattern TODO_PATTERN = Pattern.compile(
+            "^(.*)?\\btodo\\b(.*)?$",
+            Pattern.CASE_INSENSITIVE
+    );
 
     /**
      * Searches a line for existence of TODOs using regex
      *
-     * @param line The line to search
-     * @return A boolean for existence
+     * @param line
+     * @return boolean existence
      */
     protected static boolean hasTODO(String line) {
-        if (todoPattern == null) { // Compile if null
-            todoPattern = Pattern.compile(
-                    "^(.*)?\\btodo\\b(.*)?$",
-                    Pattern.CASE_INSENSITIVE
-            );
-        }
-        return todoPattern.matcher(line).matches(); // Check regex match
+        // Check regex match
+        return TODO_PATTERN.matcher(line).matches();
     }
 
     /**
      * Searches for the next occurrence of any value in a line
      *
-     * @param line   The line to search
-     * @param values The values searched for
+     * @param line
+     * @param values varargs for what values to search the line for
+     * @return Pair(index of value, index in line) for the first value found
      * @return Pair(-1, -1) when no values are found
      */
     protected static Pair<Integer, Integer> nextOccur(String line, String... values) {
@@ -89,7 +114,7 @@ public abstract class AbstractCounter {
         return next;
     }
 
-    // Output variables
+    // Variables
     protected int nTotalLines = 0;        // # lines
     protected int nCommentLines = 0;      // # lines with any type of comment
     protected int nSingleComments = 0;    // # single comments
@@ -98,34 +123,54 @@ public abstract class AbstractCounter {
     protected int nTODOs = 0;             // # TODOs
 
     // Getters
+
+    /**
+     * @return total number of lines
+     */
     public int getnTotalLines() {
         return nTotalLines;
     }
 
+    /**
+     * @return total number of lines with any comments
+     */
     public int getnCommentLines() {
         return nCommentLines;
     }
 
+    /**
+     * @return total number of single-line comments
+     */
     public int getnSingleComments() {
         return nSingleComments;
     }
 
+    /**
+     * @return total number of multi-line comments
+     */
     public int getnMultiComments() {
         return nMultiComments;
     }
 
+    /**
+     * @return total number of lines with multi-line comments
+     */
     public int getnMultiCommentLines() {
         return nMultiCommentLines;
     }
 
+    /**
+     * @return total number of TODOs
+     */
     public int getnTODOs() {
         return nTODOs;
     }
 
     /**
-     * Processes a file line-by-line using Scanner as input
+     * Constructor method
+     * Processes a file line-by-line by calling <code>nextLine</code>
      *
-     * @param fileName The file to be processed
+     * @param fileName
      * @throws FileNotFoundException when no such file exists
      */
     protected AbstractCounter(String fileName) throws FileNotFoundException {
@@ -142,9 +187,9 @@ public abstract class AbstractCounter {
 
     /**
      * Processes the next line, updating output variables accordingly
-     * Abstract, implemented according to each language
+     * Abstract: implementation dependent on language
      *
-     * @param line The input string
+     * @param line
      */
     protected abstract void nextLine(String line);
 

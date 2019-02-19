@@ -1,4 +1,5 @@
-import dalu.capitalone.AbstractCounter;
+package dalu.capitalone;
+
 import org.junit.Test;
 
 import static org.junit.Assert.*;
