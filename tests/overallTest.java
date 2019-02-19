@@ -1,8 +1,10 @@
-import Counters.CStyleCounter;
-import Counters.PythonStyleCounter;
+import dalu.capitalone.counters.CStyleCounter;
+import dalu.capitalone.counters.PythonStyleCounter;
 import org.junit.Test;
 
 import java.io.FileNotFoundException;
+
+import static org.junit.Assert.assertEquals;
 
 public class overallTest {
 

@@ -1,3 +1,4 @@
+package dalu.capitalone;
 
 import java.util.Scanner;
 

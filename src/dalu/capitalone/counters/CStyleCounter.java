@@ -1,4 +1,6 @@
+package dalu.capitalone.counters;
 
+import dalu.capitalone.AbstractCounter;
 import javafx.util.Pair;
 
 import java.io.FileNotFoundException;
@@ -20,6 +22,7 @@ public class CStyleCounter extends AbstractCounter {
 
     /**
      * Clears all strings from a line until either a comment or new line appears
+     *
      * @param line Processed line
      * @return Cleaned line
      */
@@ -30,7 +33,7 @@ public class CStyleCounter extends AbstractCounter {
         // Continuously replaces strings
         int timeout = 0; // defensive timeout
         while (next.getKey() >= 2 && timeout++ < TIMEOUT_ITERATIONS) {
-            switch(next.getKey()) {
+            switch (next.getKey()) {
                 case 2:
                     line = line.replaceFirst("[\"].*?[\"]", "");
                     break;
@@ -47,7 +50,8 @@ public class CStyleCounter extends AbstractCounter {
 
     /**
      * Updates variables according to specific line
-     * @param line Processed line
+     *
+     * @param line      Processed line
      * @param isNewLine Whether this line is new, for updating of certain variables
      * @return Processed line
      */
@@ -56,7 +60,7 @@ public class CStyleCounter extends AbstractCounter {
         Pair<Integer, Integer> next = nextOccur(line, "//", "/*");
 
         // Processes accordingly
-        switch(next.getKey()) {
+        switch (next.getKey()) {
             case 0:  // Next is a single-line comment
                 if (isNewLine) nCommentLines++;
                 nSingleComments++;
@@ -84,6 +88,9 @@ public class CStyleCounter extends AbstractCounter {
         }
 
         if (!isMultiline) {
+            // Just clean and process
+            // Blocked placed before processing of multi-line comment
+            // because of possibility to enter one
             line = cleanLine(line);
             line = processLine(line, true);
         }

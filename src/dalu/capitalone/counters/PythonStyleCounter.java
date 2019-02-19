@@ -1,4 +1,6 @@
+package dalu.capitalone.counters;
 
+import dalu.capitalone.AbstractCounter;
 import javafx.util.Pair;
 
 import java.io.FileNotFoundException;
@@ -38,7 +40,7 @@ public class PythonStyleCounter extends AbstractCounter {
         if (!isMultiLineString && line.trim().substring(0, 1).equals("#")) {
             nTODOs += hasTODO(line) ? 1 : 0;
             nCommentLines++;
-            switch(multiLineCommentCounter) {
+            switch (multiLineCommentCounter) {
                 case 0: // The first comment
                     // Treat it like a single-line
                     nSingleComments++;
@@ -75,7 +77,7 @@ public class PythonStyleCounter extends AbstractCounter {
                 // Find the next occurrence
                 // Process accordingly
                 Pair<Integer, Integer> next = nextOccur(line, "#", "\'\'\'", "\"\"\"", "\'", "\"");
-                switch(next.getKey()) {
+                switch (next.getKey()) {
                     case 0: // #
                         nCommentLines++;
                         nSingleComments++;

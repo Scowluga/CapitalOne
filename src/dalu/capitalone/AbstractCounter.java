@@ -1,4 +1,7 @@
+package dalu.capitalone;
 
+import dalu.capitalone.counters.CStyleCounter;
+import dalu.capitalone.counters.PythonStyleCounter;
 import javafx.util.Pair;
 
 import java.io.File;
@@ -16,6 +19,7 @@ public abstract class AbstractCounter {
 
     /**
      * Instantiates and returns an AbstractCounter to complete the challenge
+     *
      * @param fileName The file to be processed
      * @return The Corresponding implementation of AbstractCounter
      */
@@ -48,6 +52,7 @@ public abstract class AbstractCounter {
 
     /**
      * Searches a line for existence of TODOs using regex
+     *
      * @param line The line to search
      * @return A boolean for existence
      */
@@ -63,9 +68,9 @@ public abstract class AbstractCounter {
 
     /**
      * Searches for the next occurrence of any value in a line
-     * @param line The line to search
+     *
+     * @param line   The line to search
      * @param values The values searched for
-     * @return Pair(index of first value, index found in line)
      * @return Pair(-1, -1) when no values are found
      */
     protected static Pair<Integer, Integer> nextOccur(String line, String... values) {
@@ -119,11 +124,11 @@ public abstract class AbstractCounter {
 
     /**
      * Processes a file line-by-line using Scanner as input
+     *
      * @param fileName The file to be processed
      * @throws FileNotFoundException when no such file exists
      */
     protected AbstractCounter(String fileName) throws FileNotFoundException {
-
         File file = new File("input_tests/" + fileName);
 
         Scanner sc = new Scanner(file);
@@ -138,6 +143,7 @@ public abstract class AbstractCounter {
     /**
      * Processes the next line, updating output variables accordingly
      * Abstract, implemented according to each language
+     *
      * @param line The input string
      */
     protected abstract void nextLine(String line);
