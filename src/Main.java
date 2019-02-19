@@ -1,27 +1,30 @@
 
 import java.util.Scanner;
 
+/**
+ * Receives file names as input from user
+ * Outputs corresponding solution
+ */
 public class Main {
 
-    // Continuously processes file names from user input
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            // Reading fileName
+            // Reading file name
             System.out.println("--------------------------------");
             System.out.println("Enter a file name or 'q' to quit");
             System.out.print("> ");
 
             String fileName = scanner.nextLine().trim();
 
-            // Processing fileName
+            // Processing file name
             if (fileName.equals("q")) {
                 System.out.println("Goodbye.");
                 return;
             } else {
                 try {
 
-                    // Solve the problem
+                    // Completing challenge
                     AbstractCounter counter = AbstractCounter.build(fileName);
                     counter.output();
 

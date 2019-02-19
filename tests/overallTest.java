@@ -1,8 +1,8 @@
+import Counters.CStyleCounter;
+import Counters.PythonStyleCounter;
 import org.junit.Test;
 
 import java.io.FileNotFoundException;
-
-import static org.junit.Assert.*;
 
 public class overallTest {
 

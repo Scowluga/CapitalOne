@@ -1,25 +1,34 @@
+
 import javafx.util.Pair;
 
 import java.io.FileNotFoundException;
 
+/**
+ * Completes the Capital One coding challenge
+ * For all C style languages including:
+ * Java, TypeScript, C++
+ */
 public class CStyleCounter extends AbstractCounter {
 
-    // Constructor
+    // Public constructor
     public CStyleCounter(String fileName) throws FileNotFoundException {
         super(fileName);
     }
 
-    // If a multi-line comment is going on
-    // Used in nextLine implementation
+    // If currently in a multi-line comment
     protected boolean isMultiline = false;
 
-    // Clears single line strings from a line until either comment or new line appears
-    // Used in nextLine implementation
+    /**
+     * Clears all strings from a line until either a comment or new line appears
+     * @param line Processed line
+     * @return Cleaned line
+     */
     protected String cleanLine(String line) {
-
+        // Checks for next occurrence
         Pair<Integer, Integer> next = nextOccur(line, "//", "/*", "\"", "\'");
 
-        int timeout = 0; // defensive. In case there's a syntax error checked in.
+        // Continuously replaces strings
+        int timeout = 0; // defensive timeout
         while (next.getKey() >= 2 && timeout++ < TIMEOUT_ITERATIONS) {
             switch(next.getKey()) {
                 case 2:
@@ -36,19 +45,28 @@ public class CStyleCounter extends AbstractCounter {
         return line;
     }
 
+    /**
+     * Updates variables according to specific line
+     * @param line Processed line
+     * @param isNewLine Whether this line is new, for updating of certain variables
+     * @return Processed line
+     */
     protected String processLine(String line, boolean isNewLine) {
+        // Checks for next occurrence
         Pair<Integer, Integer> next = nextOccur(line, "//", "/*");
+
+        // Processes accordingly
         switch(next.getKey()) {
-            case 0:  // next: //
+            case 0:  // Next is a single-line comment
                 if (isNewLine) nCommentLines++;
                 nSingleComments++;
                 nTODOs += hasTODO(line.substring(next.getValue())) ? 1 : 0;
                 return line;
-            case 1:  // next: /*
+            case 1:  // Next is a multi-line comment
                 isMultiline = true;
                 nMultiComments++;
                 return line.substring(next.getValue() + 2);
-            default: // No comment
+            default: // No comments. Simply return
                 return line;
         }
     }
@@ -66,7 +84,6 @@ public class CStyleCounter extends AbstractCounter {
         }
 
         if (!isMultiline) {
-            // clean line of strings
             line = cleanLine(line);
             line = processLine(line, true);
         }
@@ -86,6 +103,7 @@ public class CStyleCounter extends AbstractCounter {
                 line = cleanLine(line);
                 line = processLine(line, false);
             }
+
             if (isMultiline)
                 nTODOs += hasTODO(line) ? 1 : 0;
         }
