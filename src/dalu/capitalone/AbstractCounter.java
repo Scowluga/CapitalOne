@@ -28,7 +28,7 @@ public abstract class AbstractCounter {
         Map<String, Class<? extends AbstractCounter>> temp = new HashMap<>();
 
         // Adding currently supported files
-        // TODO: Load from external source
+        // TODO: Load mapping from external source
         temp.put(".java", CStyleCounter.class);
         temp.put(".ts", CStyleCounter.class);
         temp.put(".c", CStyleCounter.class);
