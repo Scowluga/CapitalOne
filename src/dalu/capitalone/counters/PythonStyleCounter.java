@@ -99,10 +99,10 @@ public class PythonStyleCounter extends AbstractCounter {
                         line = line.substring(next.getValue() + 3);
                         break;
                     case 3: // '
-                        line = line.replaceFirst("[\'].*?[\']", "");
+                        line = line.replaceFirst(SINGLE_QUOTE_PATTERN, "");
                         break;
                     case 4: // "
-                        line = line.replaceFirst("[\"].*?[\"]", "");
+                        line = line.replaceFirst(DOUBLE_QUOTE_PATTERN, "");
                         break;
                     default:
                         return;

@@ -1,2 +1,2 @@
 /* TODOnope */ /* TODO:yes */ //
-String x = "//" + "/*" + "*/" + "TODO"; // "TODO"
+String x = "// \"" + "/*" + "*/" + "TODO"; // "TODO"

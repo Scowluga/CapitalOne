@@ -4,6 +4,9 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
+/**
+ * Checks the static <code>hasTODO</code> method of AbstractCounter
+ */
 public class hasTODOTest {
 
     @Test

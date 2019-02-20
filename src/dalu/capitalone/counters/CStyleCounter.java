@@ -39,13 +39,11 @@ public class CStyleCounter extends AbstractCounter {
         int size = line.length();
         while (next.getKey() >= 2) {
             switch (next.getKey()) {
-                // TODO: Improve regex for string replacement
-                // Consider cases: " \" " or " \\\" "
                 case 2:
-                    line = line.replaceFirst("[\"].*?[\"]", "");
+                    line = line.replaceFirst(DOUBLE_QUOTE_PATTERN, "");
                     break;
                 case 3:
-                    line = line.replaceFirst("[\'].*?[\']", "");
+                    line = line.replaceFirst(SINGLE_QUOTE_PATTERN, "");
                     break;
             }
             if (line.length() == size) {

@@ -5,6 +5,9 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
+/**
+ * Checks the static <code>nextOccur</code> method of AbstractCounter
+ */
 public class nextOccurTest {
 
     @Test

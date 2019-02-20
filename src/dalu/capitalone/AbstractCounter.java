@@ -83,7 +83,7 @@ public abstract class AbstractCounter {
      * Searches a line for existence of TODOs using regex
      *
      * @param line
-     * @return boolean existence
+     * @return boolean for existence
      */
     protected static boolean hasTODO(String line) {
         // Check regex match
@@ -112,6 +112,25 @@ public abstract class AbstractCounter {
             }
         }
         return next;
+    }
+
+    // Regex for replacing the next string with double quotes
+    protected static final String DOUBLE_QUOTE_PATTERN = "[\"][^\"]*[\"]";
+    // Regex for replacing the next string with single quotes
+    protected static final String SINGLE_QUOTE_PATTERN = "[\'][^\']*[\']";
+
+    /**
+     * Cleans line of all escaped quotes before trying to get rid of strings
+     * Called on every inputted line before <code>nextLine</code>
+     *
+     * @param line
+     * @return Cleaned line
+     */
+    protected static String cleanEscapedQuotes(String line) {
+        return line
+               .replace("\\\\", "")
+               .replace("\\\"", "")
+               .replace("\\\'", "");
     }
 
     // Variables
@@ -178,7 +197,8 @@ public abstract class AbstractCounter {
 
         Scanner sc = new Scanner(file);
         while (sc.hasNextLine()) {
-            String line = sc.nextLine();
+            String line = sc.nextLine().trim();
+            line = cleanEscapedQuotes(line); // Cleans of escaped quotes
             nextLine(line); // Calls abstract nextLine method
         }
 

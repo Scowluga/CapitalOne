@@ -6,10 +6,10 @@ x = """
 # Not a comment
 """ # Comment!
 
-y = '#' + "Fake TODO" # Comment!
+y = '#\\' + "Fake TODO \\\'" # Comment!
 
 # Multiline
-# Real TODO
+# Real "TODO"
 #
 
 # Single comment

@@ -8,6 +8,9 @@ import java.io.FileNotFoundException;
 
 import static org.junit.Assert.assertEquals;
 
+/**
+ * Performs general checks on implementations of AbstractCounter
+ */
 public class overallTest {
 
     @Test
