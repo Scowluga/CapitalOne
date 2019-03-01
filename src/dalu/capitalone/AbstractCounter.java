@@ -55,9 +55,9 @@ public abstract class AbstractCounter {
 
         // Checks validity of file name
         if (fileName.substring(0, 1).equals("."))  // Specified to be ignored
-            throw new Exception("File ignored.");
+            throw new IllegalStateException("File ignored.");
         if (fileName.split("\\.").length < 2)      // No '.' character
-            throw new Exception("File name invalid.");
+            throw new IllegalStateException("File name invalid.");
 
         // Returns corresponding implementation
         String extension = fileName.substring(fileName.lastIndexOf("."));
@@ -65,7 +65,7 @@ public abstract class AbstractCounter {
 
         if (klass == null) {
             // File extension not found, thus not supported
-            throw new Exception("File extension not supported.");
+            throw new IllegalStateException("File extension not supported.");
         }
 
         // Uses Reflection to call constructor
